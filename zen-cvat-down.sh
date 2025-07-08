@@ -1,0 +1,11 @@
+#!/bin/bash
+# This script brings down the CVAT stack using the same compose files.
+
+CLIENT_PLUGINS=plugins/sam2 \
+CVAT_HOST=100.119.43.117 \
+CVAT_VERSION=v2.21.2 \
+docker compose -f docker-compose.yml \
+              -f docker-compose.dev.yml \
+              -f components/serverless/docker-compose.serverless.yml \
+              -f docker-compose.override.yml \
+              -p cvat down

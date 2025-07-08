@@ -63,11 +63,11 @@ interface ClickType {
     y: number;
 }
 
-function getModelScale(w, h) {
-    const targetSize = 1024;
-    const scaleX = targetSize / w;
-    const scaleY = targetSize / h;
-    return { scaleX, scaleY, width: w, height: h };
+function getModelScale(w: number, h: number): number {
+    // Input images to SAM must be resized so the longest side is 1024
+    const LONG_SIDE_LENGTH = 1024;
+    const scale = LONG_SIDE_LENGTH / Math.max(h, w);
+    return scale;
 }
 
 function modelData(
@@ -78,7 +78,7 @@ function modelData(
         imageEmbedTensor: Tensor;
         highResFeats0Tensor: Tensor;
         highResFeats1Tensor: Tensor;
-        modelScale: { width: number; height: number; scaleX: number; scaleY: number };
+        modelScale: { height: number; width: number; scale: number };
         maskInput: Tensor | null;
     },
 ): DecodeBody {
@@ -91,9 +91,9 @@ function modelData(
     const pointLabels = new Float32Array(n);
 
     // Scale and add clicks
-    for (let i = 0; i < clicks.length; i++) {
-        pointCoords[2 * i] = clicks[i].x * modelScale.scaleX;
-        pointCoords[2 * i + 1] = clicks[i].y * modelScale.scaleY;
+    for (let i = 0; i < n; i++) {
+        pointCoords[2 * i] = clicks[i].x * modelScale.scale;
+        pointCoords[2 * i + 1] = clicks[i].y * modelScale.scale;
         pointLabels[i] = clicks[i].clickType;
     }
 
@@ -258,7 +258,11 @@ const sam2Plugin: SAM2Plugin = {
                                     plugin.data.features1.set(key, new Tensor('float32', float32ArrFeat1, [1, 64, 128, 128]));
                                 }
 
-                                const modelScale = getModelScale(imWidth, imHeight);
+                                const modelScale = {
+                                    width: imWidth,
+                                    height: imHeight,
+                                    scale: getModelScale(imWidth, imHeight),
+                                };
 
                                 const clicks: ClickType[] = [];
                                 if (obj_bbox.length) {

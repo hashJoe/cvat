@@ -1,0 +1,40 @@
+# version: '3.3'
+# services:
+#   cvat_server:
+#     environment:
+#       CVAT_SHARE_URL: "Mounted from /home/lemon/anomaly/images_for_cvat"
+#     volumes:
+#       - type: bind
+#         source: /home/lemon/anomaly/images_for_cvat
+#         target: /home/django/share
+#         read_only: true
+#   cvat_worker_import:
+#     volumes:
+#       - type: bind
+#         source: /home/lemon/anomaly/images_for_cvat
+#         target: /home/django/share
+#         read_only: true
+#   cvat_worker_export:
+#     volumes:
+#       - type: bind
+#         source: /home/lemon/anomaly/images_for_cvat
+#         target: /home/django/share
+#         read_only: true
+#   cvat_worker_annotation:
+#     volumes:
+#       - type: bind
+#         source: /home/lemon/anomaly/images_for_cvat
+#         target: /home/django/share
+#         read_only: true
+
+version: '3.3'
+services:
+  cvat_server:
+    entrypoint: ["/bin/sh", "-c", "rm -rf /home/django/share && ln -s /home/django/external_share /home/django/share && exec ./backend_entrypoint.sh init run server"]
+    environment:
+      CVAT_SHARE_URL: "Mounted from /home/lemon/anomaly/images_for_cvat"
+    volumes:
+      - type: bind
+        source: /home/lemon/anomaly/images_for_cvat
+        target: /home/django/external_share
+        read_only: true
