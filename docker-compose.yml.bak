@@ -1,9 +1,7 @@
 # Copyright (C) 2018-2022 Intel Corporation
-# Copyright (C) CVAT.ai Corporation
+# Copyright (C) 2024 CVAT.ai Corporation
 #
 # SPDX-License-Identifier: MIT
-
-name: cvat
 
 x-backend-env: &backend-env
   CVAT_POSTGRES_HOST: cvat_db
@@ -219,38 +217,6 @@ services:
       <<: [*backend-env, *clickhouse-env]
       NUMPROCS: 2
     command: run worker.analytics_reports
-    volumes:
-      - cvat_data:/home/django/data
-      - cvat_keys:/home/django/keys
-      - cvat_logs:/home/django/logs
-    networks:
-      - cvat
-
-  cvat_worker_chunks:
-    container_name: cvat_worker_chunks
-    image: cvat/server:${CVAT_VERSION:-dev}
-    restart: always
-    depends_on: *backend-deps
-    environment:
-      <<: *backend-env
-      NUMPROCS: 2
-    command: run worker.chunks
-    volumes:
-      - cvat_data:/home/django/data
-      - cvat_keys:/home/django/keys
-      - cvat_logs:/home/django/logs
-    networks:
-      - cvat
-
-  cvat_worker_consensus:
-    container_name: cvat_worker_consensus
-    image: cvat/server:${CVAT_VERSION:-dev}
-    restart: always
-    depends_on: *backend-deps
-    environment:
-      <<: *backend-env
-      NUMPROCS: 1
-    command: run worker.consensus
     volumes:
       - cvat_data:/home/django/data
       - cvat_keys:/home/django/keys
